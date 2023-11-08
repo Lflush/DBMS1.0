@@ -56,25 +56,39 @@ public class Initialize {
             try (XSSFWorkbook systemWorkbook = new XSSFWorkbook()) {
                 try (FileOutputStream outputStream = new FileOutputStream(systemPath)) {
                     System.out.println("system创建成功！");
-                    //设置user表
-                    Sheet user = systemWorkbook.createSheet("user");
+                    //设置up表，用于存储用户名和密码
+                    Sheet user = systemWorkbook.createSheet("up");
                     Row userRow = user.createRow(0);
                     Cell userCell = userRow.createCell(0);
                     userCell.setCellValue("userName");
                     userCell = userRow.createCell(1);
                     userCell.setCellValue("password");
 
+                    //设置admin用户
                     userRow = user.createRow(1);
                     userCell = userRow.createCell(0);
                     userCell.setCellValue("admin");
                     userCell = userRow.createCell(1);
                     userCell.setCellValue("admin");
 
-                    //设置permission表
+                    //设置root用户
+                    userRow = user.createRow(2);
+                    userCell = userRow.createCell(0);
+                    userCell.setCellValue("root");
+                    userCell = userRow.createCell(1);
+                    userCell.setCellValue("root");
+
+                    //每个用户都开一个表，表中存储该用户的操作权限
+                    String[] users = {"admin", "root"};
+
+                    for (int i = 0; i < users.length; i++) {
+
+                    }
+
                     Sheet permission = systemWorkbook.createSheet("permission");
                     Row permissionRow = permission.createRow(0);
                     Cell permissionCell;
-                    String[] permissionList = {"table", "select", "insert", "update", "delete", "create", "drop", "alter",
+                    String[] operateList = {"table", "select", "insert", "update", "delete", "create", "drop", "alter",
                             "grant", "revoke", "execute", "references", "all privileges"};
                     for (int i = 0; i < 12; i++) {
                         permissionCell = permissionRow.createCell(i);
