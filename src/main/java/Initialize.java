@@ -2,7 +2,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,18 +9,112 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Initialize {
+    //创建后续要使用的目录结构以及admin等基本信息
     public static int initialize() {
         //返回值：0，一切正常；1，初始化失败
         String currentDir = System.getProperty("user.dir");
 
+        String sysPath = currentDir + "\\sys";
+        File sys = new File(sysPath);
+        String usersPath = sysPath + "\\user.xlsx";
+        File users = new File(usersPath);
+
+        String tbInformationPath = currentDir + "\\tbInformation";
+        File tbInformation = new File(tbInformationPath);
+        String exampleDbPath = tbInformationPath + "\\exampleDb";
+        File exampleDb = new File(exampleDbPath);
+        String exampleTbPath = tbInformationPath + "\\exampleTb.xlsx";
+        File exampleTb = new File(exampleTbPath);
+
         String dataPath = currentDir + "\\data";
         File data = new File(dataPath);
+        String exampleDbDataPath = dataPath + "\\exampleDb";
+        File exampleDbData = new File(exampleDbDataPath);
+        String exampleTbDataPath = dataPath + "\\exampleTb.xlsx";
+        File exampleTbData = new File(exampleTbDataPath);
 
-        String tableInformationPath = dataPath + "\\tableInformation.xlsx";
-        File tableInformation = new File(tableInformationPath);
+        //sys初始化
+        if (sys.exists()) {
+            System.out.println("system已存在！");
+        } else {
+            System.out.println("sys创建成功！");
 
-        String systemPath = dataPath + "\\system.xlsx";
-        File system = new File(systemPath);
+            //创建sys文件夹
+            if (sys.mkdir()) {
+                //创建users工作簿
+                try (XSSFWorkbook usersWorkbook = new XSSFWorkbook()) {
+                    try (FileOutputStream outputStream = new FileOutputStream(usersPath)) {
+                        System.out.println("users创建成功！");
+
+                        //设置up表，用于存储用户名和密码
+                        Sheet upSheet = usersWorkbook.createSheet("up");
+                        Row upRow = upSheet.createRow(0);
+                        Cell upCell = upRow.createCell(0);
+                        upCell.setCellValue("userName");
+                        upCell = upRow.createCell(1);
+                        upCell.setCellValue("password");
+
+                        //设置admin用户
+                        upRow = upSheet.createRow(1);
+                        upCell = upRow.createCell(0);
+                        upCell.setCellValue("admin");
+                        upCell = upRow.createCell(1);
+                        upCell.setCellValue("admin");
+
+                        //设置root用户
+                        upRow = upSheet.createRow(2);
+                        upCell = upRow.createCell(0);
+                        upCell.setCellValue("root");
+                        upCell = upRow.createCell(1);
+                        upCell.setCellValue("root");
+
+                        //每个用户都开一个表，表中存储该用户的操作权限
+                        String[] userList = {"admin", "root"};
+                        String[] permissionList = {"table", "select", "insert", "update", "delete", "create", "drop", "alter", "all privileges"};
+                        Map<String, String[]> permissionMap = new HashMap<>();
+                        String[] tbList = {"exampleTb"};
+                        permissionMap.put("exampleTb", new String[]{"1", "1", "1", "1", "1", "1", "0", "0"});
+                        Sheet userSheet;
+                        Row userRow;
+                        Cell userCell;
+                        for (String s : userList) {
+                            userSheet = usersWorkbook.createSheet(s);
+                            userRow = userSheet.createRow(0);
+                            for (int j = 0; j < permissionList.length; j++) {
+                                userCell = userRow.createCell(j);
+                                userCell.setCellValue(permissionList[j]);
+                            }
+
+                            for (int k = 0; k < permissionMap.size(); k++) {
+                                userRow = userSheet.createRow(k + 1);
+                                userCell = userRow.createCell(0);
+                                userCell.setCellValue(tbList[k]);
+                                String[] permissions = permissionMap.get(tbList[k]);
+
+                                for (int m = 0; m < permissionList.length; m++) {
+                                    userCell = userRow.createCell(m + 1);
+                                    userCell.setCellValue(permissions[m]);
+                                }
+                            }
+                        }
+
+                        //保存工作簿到文件
+                        usersWorkbook.write(outputStream);
+                        System.out.println("users初始化成功！");
+                        System.out.println("sys初始化成功！");
+                    }
+                } catch (IOException e) {
+                    System.out.println("users创建失败！");
+                    e.fillInStackTrace();
+                    System.out.println("初始化失败！");
+                    return 1;
+                }
+            } else {
+                System.out.println("sys创建失败！");
+                System.out.println("初始化失败！");
+                return 1;
+            }
+        }
 
         if (data.exists() && data.isDirectory()) {
             System.out.println("data已存在！");
@@ -49,123 +142,201 @@ public class Initialize {
             }
         }
 
-        if (system.exists()) {
-            System.out.println("system已存在！");
-        } else {
-            //创建system工作簿
-            try (XSSFWorkbook systemWorkbook = new XSSFWorkbook()) {
-                try (FileOutputStream outputStream = new FileOutputStream(systemPath)) {
-                    System.out.println("system创建成功！");
-                    //设置up表，用于存储用户名和密码
-                    Sheet user = systemWorkbook.createSheet("up");
-                    Row userRow = user.createRow(0);
-                    Cell userCell = userRow.createCell(0);
-                    userCell.setCellValue("userName");
-                    userCell = userRow.createCell(1);
-                    userCell.setCellValue("password");
 
-                    //设置admin用户
-                    userRow = user.createRow(1);
-                    userCell = userRow.createCell(0);
-                    userCell.setCellValue("admin");
-                    userCell = userRow.createCell(1);
-                    userCell.setCellValue("admin");
-
-                    //设置root用户
-                    userRow = user.createRow(2);
-                    userCell = userRow.createCell(0);
-                    userCell.setCellValue("root");
-                    userCell = userRow.createCell(1);
-                    userCell.setCellValue("root");
-
-                    //每个用户都开一个表，表中存储该用户的操作权限
-                    String[] users = {"admin", "root"};
-
-                    for (int i = 0; i < users.length; i++) {
-
-                    }
-
-                    Sheet permission = systemWorkbook.createSheet("permission");
-                    Row permissionRow = permission.createRow(0);
-                    Cell permissionCell;
-                    String[] operateList = {"table", "select", "insert", "update", "delete", "create", "drop", "alter",
-                            "grant", "revoke", "execute", "references", "all privileges"};
-                    for (int i = 0; i < 12; i++) {
-                        permissionCell = permissionRow.createCell(i);
-                        permissionCell.setCellValue(permissionList[i]);
-                    }
-
-                    String[] tableList = {"system", "tableInformation"};
-
-                    for (int i = 1; i <= 2; i++) {
-                        permissionRow = permission.createRow(i);
-                        permissionCell = permissionRow.createCell(0);
-                        permissionCell.setCellValue(tableList[i - 1]);
-
-                        for (int j = 1; j < permissionList.length; j++) {
-                            permissionCell = permissionRow.createCell(j);
-                            permissionCell.setCellValue("admin,root");
-                        }
-                    }
-
-                    //保存工作簿到文件
-                    systemWorkbook.write(outputStream);
-                    System.out.println("system初始化成功！");
-                }
-            } catch (IOException e) {
-                System.out.println("system创建失败！");
-                e.fillInStackTrace();
-                System.out.println("初始化失败！");
-                return 1;
-            }
-        }
-
-        if (tableInformation.exists()) {
+        //tbInformation初始化
+        if (tbInformation.exists()) {
             System.out.println("tableInformation已存在！");
         } else {
-            //创建tableInformation工作簿
-            try (XSSFWorkbook tableInformationWorkbook = new XSSFWorkbook()) {
-                try (FileOutputStream outputStream = new FileOutputStream(tableInformationPath)) {
-                    System.out.println("tableInformation创建成功！");
-                    //初始化tableInformation
-                    String[] tableInformationList = {"table", "columnName", "type", "null", "unique", "primaryKey",
-                            "foreignKey"};
-                    //设置system表
-                    Sheet systemTable = tableInformationWorkbook.createSheet("system");
-                    String[] columnName = {"table", "select", "insert", "update", "delete", "create", "drop", "alter",
-                            "grant", "revoke", "execute", "references", "all privileges"};
+            //创建tbInformation文件夹
+            if (tbInformation.mkdir()) {
+                System.out.println("tbInformation创建成功！");
 
-                    Map<String, Map<String, String>> systemMap = getStringMapMap();
+                //创建数据库文件夹
+                if (exampleDb.mkdir()) {
+                    System.out.println("exampleDb创建成功！");
 
-                    Row systemRow = systemTable.createRow(0);
-                    Cell systemCell;
-                    for (int i = 0; i < tableInformationList.length; i++) {
-                        systemCell = systemRow.createCell(i);
-                        systemCell.setCellValue(tableInformationList[i]);
-                    }
+                    //创建表工作簿
+                    try (XSSFWorkbook exampleTbWorkbook = new XSSFWorkbook()) {
+                        try (FileOutputStream outputStream = new FileOutputStream(exampleTbPath)) {
+                            System.out.println("exampleTb创建成功！");
 
-                    for (int i = 0; i < columnName.length; i++) {
-                        systemRow = systemTable.createRow(i + 1);
-                        Map<String, String> temp0 = systemMap.get(columnName[i]);
+                            //设置model表，存储example表模式
+                            Sheet modelSheet = exampleTbWorkbook.createSheet("model");
+                            String[] cnList = {"cnList", "type", "null", "unique", "primary key", "foreign key"};
+                            String[] cnNameList = {"学号", "姓名", "年龄"};
+                            Map<String, String[]> cnMap = new HashMap<>();
+                            cnMap.put("学号", new String[]{"char", "0", "1", "1", "null"});
+                            cnMap.put("姓名", new String[]{"char", "0", "0", "0", "null"});
+                            cnMap.put("年龄", new String[]{"int", "1", "0", "0", "null"});
+                            Row modelRow;
+                            Cell modelCell;
 
-                        for (int j = 0; j < tableInformationList.length; j++) {
-                            String temp1 = temp0.get(tableInformationList[j]);
-                            systemCell = systemRow.createCell(j);
-                            systemCell.setCellValue(temp1);
+                            modelRow = modelSheet.createRow(0);
+                            for (int i = 0; i < cnList.length; i++) {
+                                modelCell = modelRow.createCell(i);
+                                modelCell.setCellValue(cnList[i]);
+                            }
+
+                            for (int j = 0; j < cnNameList.length; j++) {
+                                modelRow = modelSheet.createRow(j + 1);
+                                modelCell = modelRow.createCell(0);
+                                modelCell.setCellValue(cnNameList[j]);
+                                String[] constrain = cnMap.get(cnNameList[j]);
+
+                                for (int k = 0; k < cnList.length; k++) {
+                                    modelCell = modelRow.createCell(k + 1);
+                                    modelCell.setCellValue(constrain[k]);
+                                }
+                            }
+
+                            //设置check表
+                            Sheet checkSheet = exampleTbWorkbook.createSheet("check");
+                            String[] ckList = {"cnName"};
+
+                            Map<String, String[]> ckMap = new HashMap<>();
+                            cnMap.put("学号", new String[]{">2020", "<2022"});
+                            cnMap.put("姓名", new String[]{});
+                            cnMap.put("年龄", new String[]{">18", "<24"});
+                            Row checkRow;
+                            Cell checkCell;
+
+                            checkRow = modelSheet.createRow(0);
+                            for (int i = 0; i < ckList.length; i++) {
+                                checkCell = checkRow.createCell(i);
+                                checkCell.setCellValue(ckList[i]);
+                            }
+
+                            for (int j = 0; j < cnNameList.length; j++) {
+                                checkRow = checkSheet.createRow(j + 1);
+                                checkCell = checkRow.createCell(0);
+                                checkCell.setCellValue(cnNameList[j]);
+                                String[] check = ckMap.get(cnNameList[j]);
+
+                                for (int k = 0; k < check.length; k++) {
+                                    modelCell = modelRow.createCell(k + 1);
+                                    modelCell.setCellValue(check[k]);
+                                }
+                            }
+
+                            //保存工作簿到文件
+                            exampleTbWorkbook.write(outputStream);
+                            System.out.println("exampleTb初始化成功！");
+                            System.out.println("tbInformation初始化成功！");
                         }
+                    } catch (IOException e) {
+                        System.out.println("exampleTb创建失败！");
+                        System.out.println("初始化失败！");
+                        throw new RuntimeException(e);
                     }
-
-                    // 保存工作簿到文件
-                    tableInformationWorkbook.write(outputStream);
-                    System.out.println("tableInformation初始化成功！");
+                } else {
+                    System.out.println("exampleDb创建失败！");
+                    System.out.println("初始化失败！");
+                    return 1;
                 }
-            } catch (IOException e) {
-                System.out.println("tableInformation创建失败！");
-                e.fillInStackTrace();
+            } else {
+                System.out.println("tbInformation创建失败！");
                 System.out.println("初始化失败！");
                 return 1;
             }
         }
+
+        //data初始化
+        if (tbInformation.exists()) {
+            System.out.println("tableInformation已存在！");
+        } else {
+            //创建tbInformation文件夹
+            if (tbInformation.mkdir()) {
+                System.out.println("tbInformation创建成功！");
+
+                //创建数据库文件夹
+                if (exampleDb.mkdir()) {
+                    System.out.println("exampleDb创建成功！");
+
+                    //创建表工作簿
+                    try (XSSFWorkbook exampleTbWorkbook = new XSSFWorkbook()) {
+                        try (FileOutputStream outputStream = new FileOutputStream(exampleTbPath)) {
+                            System.out.println("exampleTb创建成功！");
+
+                            //设置model表，存储example表模式
+                            Sheet modelSheet = exampleTbWorkbook.createSheet("model");
+                            String[] cnList = {"cnList", "type", "null", "unique", "primary key", "foreign key"};
+                            String[] cnNameList = {"学号", "姓名", "年龄"};
+                            Map<String, String[]> cnMap = new HashMap<>();
+                            cnMap.put("学号", new String[]{"char", "0", "1", "1", "null"});
+                            cnMap.put("姓名", new String[]{"char", "0", "0", "0", "null"});
+                            cnMap.put("年龄", new String[]{"int", "1", "0", "0", "null"});
+                            Row modelRow;
+                            Cell modelCell;
+
+                            modelRow = modelSheet.createRow(0);
+                            for (int i = 0; i < cnList.length; i++) {
+                                modelCell = modelRow.createCell(i);
+                                modelCell.setCellValue(cnList[i]);
+                            }
+
+                            for (int j = 0; j < cnNameList.length; j++) {
+                                modelRow = modelSheet.createRow(j + 1);
+                                modelCell = modelRow.createCell(0);
+                                modelCell.setCellValue(cnNameList[j]);
+                                String[] constrain = cnMap.get(cnNameList[j]);
+
+                                for (int k = 0; k < cnList.length; k++) {
+                                    modelCell = modelRow.createCell(k + 1);
+                                    modelCell.setCellValue(constrain[k]);
+                                }
+                            }
+
+                            //设置check表
+                            Sheet checkSheet = exampleTbWorkbook.createSheet("check");
+                            String[] ckList = {"cnName"};
+
+                            Map<String, String[]> ckMap = new HashMap<>();
+                            cnMap.put("学号", new String[]{">2020", "<2022"});
+                            cnMap.put("姓名", new String[]{});
+                            cnMap.put("年龄", new String[]{">18", "<24"});
+                            Row checkRow;
+                            Cell checkCell;
+
+                            checkRow = modelSheet.createRow(0);
+                            for (int i = 0; i < ckList.length; i++) {
+                                checkCell = checkRow.createCell(i);
+                                checkCell.setCellValue(ckList[i]);
+                            }
+
+                            for (int j = 0; j < cnNameList.length; j++) {
+                                checkRow = checkSheet.createRow(j + 1);
+                                checkCell = checkRow.createCell(0);
+                                checkCell.setCellValue(cnNameList[j]);
+                                String[] check = ckMap.get(cnNameList[j]);
+
+                                for (int k = 0; k < check.length; k++) {
+                                    modelCell = modelRow.createCell(k + 1);
+                                    modelCell.setCellValue(check[k]);
+                                }
+                            }
+
+                            //保存工作簿到文件
+                            exampleTbWorkbook.write(outputStream);
+                            System.out.println("exampleTb初始化成功！");
+                            System.out.println("tbInformation初始化成功！");
+                        }
+                    } catch (IOException e) {
+                        System.out.println("exampleTb创建失败！");
+                        System.out.println("初始化失败！");
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    System.out.println("exampleDb创建失败！");
+                    System.out.println("初始化失败！");
+                    return 1;
+                }
+            } else {
+                System.out.println("tbInformation创建失败！");
+                System.out.println("初始化失败！");
+                return 1;
+            }
+        }
+
         return 0;
     }
 
