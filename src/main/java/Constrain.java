@@ -3,7 +3,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -30,7 +29,8 @@ public class Constrain {
                 if (Objects.equals(cnName, modelCell.getStringCellValue())) {
                     for (int j = 0; j < constrainNum; j ++) {
                         modelCell = modelRow.getCell(j + 1);
-                        if (Objects.equals("1", modelCell.getStringCellValue())) {
+                        if (!(Objects.equals("0", modelCell.getStringCellValue()) ||
+                                Objects.equals("null", modelCell.getStringCellValue()))) {
                             switch (j + 1) {
                                 case 1: re = typeConstrain(dbName, tbName, cnName, data);break;
                                 case 2: re = nullConstrain(dbName, tbName, cnName, data);break;
