@@ -1,7 +1,4 @@
 # DBMS1.0
-<<<<<<< HEAD
-数据库课程设置
-=======
 创建用户：create user {userName} identified by {password};
 
 用户授权：grant {privilegesCode} on {dbName.tableName} to {userName} identified by {password};
@@ -78,4 +75,3 @@
 
 当前数据库：select database();
 
->>>>>>> d89666ec28762a9236fe574f6b7ffc0f26e3aa24
