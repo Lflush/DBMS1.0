@@ -1,11 +1,23 @@
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashSet;
 
 public class SqlFunction {
+
+    
+    
     //帮助页
     public static void help() {
         System.out.println("\"\"\"\n" +
@@ -180,4 +192,67 @@ public class SqlFunction {
 //
 //    }
 
+    //返回值：0，一切正常；1，数据库不存在；2，创建失败
+    /**
+     * 创建用户
+     * @param userName 创建的用户名
+     * @param password 密码
+     * @return 0，创建正常；2，创建失败
+     * @throws IOException
+     */
+    public static int createUser(String userName,String password) throws IOException{
+        // 用户名或者密码为空返回创建失败
+        if(userName==null || password==null){
+            return 2;
+        }
+        XSSFWorkbook Users= new XSSFWorkbook("../../../sys/users.xlsx");
+        FileOutputStream fileOutputStream=new FileOutputStream("../../../sys/users.xlsx");
+        XSSFSheet sheet=Users.getSheet("up");
+        for(Row row : sheet){
+            if(row.getCell(0).getStringCellValue().equals(userName)){
+                // 存在同名的用户，创建失败
+                Users.close();
+                System.out.println("存在同名的用户，创建失败");
+                return 2;
+            }
+        }
+        int insertRownum=sheet.getLastRowNum()+1;
+        XSSFRow insertRow=sheet.createRow(insertRownum);
+        XSSFCell username=insertRow.createCell(0);
+        username.setCellValue(userName);
+        XSSFCell psw=insertRow.createCell(1);
+        psw.setCellValue(password);
+        Users.write(fileOutputStream);
+        fileOutputStream.close();
+        Users.close();
+        System.out.println("创建成功");
+
+        // 复制默认用户的表
+        return 0;
+    }
+
+    /**
+     * 对用户授权
+     * @param privilegesCode 授权的操作
+     * @param dbName 数据库名
+     * @param tableName 表名
+     * @param userName 用户名
+     * @return 返回值,0,正常授权,2,授权失败
+     * @throws IOException
+     */
+    public static int grantPrivilegde(String privilegesCode,String dbName,String tableName,String userName) throws IOException{
+        if(privilegesCode==null||dbName==null||tableName==null||userName==null){
+            System.out.println("输入数据有误,授权失败");
+            return 2;
+        }
+        
+
+        FileOutputStream fos=new FileOutputStream("../../../sys"+userName);
+        XSSFWorkbook sys=new XSSFWorkbook("../../../sys"+userName);
+        XSSFSheet sheet=sys.createSheet("");
+
+        
+        
+        return 0;
+    }
 }
