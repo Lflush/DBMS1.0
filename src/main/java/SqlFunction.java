@@ -258,12 +258,24 @@ public class SqlFunction {
         
         FileOutputStream fos=new FileOutputStream("../../../sys"+userName);
         XSSFWorkbook sys=new XSSFWorkbook("../../../sys"+userName);
-        XSSFSheet sheet=sys.getSheet("dbName");
-        
-        // 
-
-        
-        
+        XSSFSheet sheet=sys.getSheet(dbName);
+        int priviegdeNum = 1;
+        Row firstRow = sheet.getRow(0);
+        for(Cell cell:firstRow){
+            if(cell.getStringCellValue().equals(privilegesCode)){
+                priviegdeNum=cell.getColumnIndex();
+            }
+        }
+        for(Row table:sheet){
+            if (table.getCell(0).getStringCellValue().equals(tableName)) {
+                table.getCell(priviegdeNum).setCellValue("1");
+                break;
+            }
+        }
+        sys.write(fos);
+        sys.close();
+        fos.close();
+        System.out.println("授权成功");
         return 0;
     }
 }
