@@ -11,7 +11,7 @@
 
 取消用户权限：revoke {privilegesCode} on {daName.tableName} from {userName};
 
-修改用户密码：updata password {userName} {password} {newPassword};
+修改用户密码：modify password {userName} {password} {newPassword};
 
 删除用户：drop user {userName};
 
