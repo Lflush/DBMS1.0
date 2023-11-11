@@ -102,4 +102,47 @@ public class Interpreter {
         System.out.println("命令语法错误！");
         return 1;
     }
+
 }
+// grantprivilege
+// // 检查用户的合法性(用户是否存在)
+// XSSFWorkbook Users = new XSSFWorkbook("../../../sys/users.xlsx");
+
+// XSSFSheet userSheet = Users.getSheet("up");
+// boolean userFlag = false;for(
+// Row row:userSheet)
+// {
+//     if (row.getCell(0).getStringCellValue().equals(userName)) {
+//         userFlag = true;
+//     }
+// }Users.close();if(!userFlag)
+// {
+//     System.out.println("用户不存在,授权失败");
+//     return 2;
+// }
+
+// // 检查权限的合法性
+// String[] privilegdeStrings = new String[] { "select", "insert", "update", "delete", "create", "drop", "alter" };
+// HashSet<String> privilegde = new HashSet<>();Collections.addAll(privilegde,privilegdeStrings);if(!privilegde.contains(privilegesCode))
+// {
+//     System.out.println("权限错误,授权失败");
+//     return 2;
+// }
+
+// // 检查数据库和表存在(不完整)
+// try
+// {
+//     XSSFWorkbook dB = new XSSFWorkbook("../../../data/" + dbName);
+//     XSSFSheet sheet = dB.getSheet(tableName);
+//     dB.close();
+// }catch(
+// Exception e)
+// {
+//     // TODO Auto-generated catch block
+//     e.printStackTrace();
+//     System.out.println("数据库不存在,授权失败");
+//     return 2;
+// }finally{
+
+//     }
+

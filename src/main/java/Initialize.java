@@ -65,12 +65,20 @@ public class Initialize {
                         upCell = upRow.createCell(1);
                         upCell.setCellValue("root");
 
+                        //设置default用户
+                        upRow = upSheet.createRow(3);
+                        upCell = upRow.createCell(0);
+                        upCell.setCellValue("default");
+                        upCell = upRow.createCell(1);
+                        upCell.setCellValue("default");
+
+
                         //保存工作簿到文件
                         usersWorkbook.write(outputStream);
                         System.out.println("users初始化成功！");
 
                         //每个用户都开一个文件夹，文件夹中存储该用户的操作权限
-                        String[] userList = {"admin", "root"};
+                        String[] userList = {"admin", "root", "default"};
                         String[] permissionList = {"tbName", "select", "insert", "update", "delete", "create", "drop", "alter", "all privileges"};
                         Map<String, String[]> permissionMap = new HashMap<>();
                         String[] dbList = {"exampleDb"};
@@ -150,7 +158,7 @@ public class Initialize {
 
                             //设置model表，存储example表模式
                             Sheet modelSheet = exampleTbWorkbook.createSheet("model");
-                            String[] cnList = {"cnList", "type", "null", "unique", "primary key", "foreign key"};
+                            String[] cnList = {"cnList", "type", "not null", "unique", "primary key", "foreign key"};
                             String[] cnNameList = {"学号", "姓名", "年龄"};
                             Map<String, String[]> cnMap = new HashMap<>();
                             cnMap.put("学号", new String[]{"char", "0", "1", "1", "null"});
