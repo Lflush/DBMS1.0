@@ -376,8 +376,8 @@ public class SqlFunction {
             System.out.println("输入数据错误,操作失败");
             return 2;
         }
-        FileOutputStream fos=new FileOutputStream("./../sys/users.xlsx");
-        XSSFWorkbook Users=new XSSFWorkbook("./../sys/users.xlsx");
+        FileOutputStream fos=new FileOutputStream("./sys/users.xlsx");
+        XSSFWorkbook Users=new XSSFWorkbook("./sys/users.xlsx");
         XSSFSheet up=Users.getSheet("up");
         // 检查密码正确
         for(Row row:up){
