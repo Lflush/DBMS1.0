@@ -72,7 +72,6 @@ public class Initialize {
                         upCell = upRow.createCell(1);
                         upCell.setCellValue("default");
 
-
                         //保存工作簿到文件
                         usersWorkbook.write(outputStream);
                         System.out.println("users初始化成功！");
