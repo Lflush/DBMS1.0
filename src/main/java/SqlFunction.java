@@ -228,6 +228,16 @@ public class SqlFunction {
         System.out.println("创建成功");
 
         // 复制默认用户的表
+        FileOutputStream fos=new FileOutputStream("../../../sys/"+userName+".xlsx");
+        FileInputStream fis=new FileInputStream("../../../src/default.xlsx");
+
+        int len=0;
+        byte[] bytes=new byte[1024];
+        while ((len=fis.read(bytes)) != -1) {
+            fos.write(bytes,0,len);
+        }
+        fis.close();
+        fos.close();
         return 0;
     }
 
@@ -246,10 +256,11 @@ public class SqlFunction {
             return 2;
         }
         
-
         FileOutputStream fos=new FileOutputStream("../../../sys"+userName);
         XSSFWorkbook sys=new XSSFWorkbook("../../../sys"+userName);
-        XSSFSheet sheet=sys.createSheet("");
+        XSSFSheet sheet=sys.getSheet("dbName");
+        
+        // 
 
         
         
