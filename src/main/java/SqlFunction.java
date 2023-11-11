@@ -1,6 +1,7 @@
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -16,7 +17,9 @@ import java.util.HashSet;
 
 public class SqlFunction {
 
-    
+    // 当前用户和当前使用的数据库
+    public static String currentUser="root";
+    public static String currentDataBase="exampleDb";
     
     //帮助页
     public static void help() {
@@ -123,6 +126,9 @@ public class SqlFunction {
                 XSSFWorkbook usingDbWorkbook = new XSSFWorkbook(usingDbFile);
 
                 System.out.println("数据库{" + usingDbName + "}使用成功！");
+
+                currentDataBase=usingDbName;
+
                 return usingDbWorkbook;
             } catch (IOException e) {
                 e.fillInStackTrace();
@@ -229,7 +235,7 @@ public class SqlFunction {
 
         // 复制默认用户的表
         FileOutputStream fos=new FileOutputStream("../../../sys/"+userName+".xlsx");
-        FileInputStream fis=new FileInputStream("../../../src/default.xlsx");
+        FileInputStream fis=new FileInputStream("../../../sys/default.xlsx");
 
         int len=0;
         byte[] bytes=new byte[1024];
@@ -243,7 +249,7 @@ public class SqlFunction {
 
     /**
      * 对用户授权
-     * @param privilegesCode 授权的操作
+     * @param privilegesCode 权限名,一个
      * @param dbName 数据库名
      * @param tableName 表名
      * @param userName 用户名
@@ -256,14 +262,15 @@ public class SqlFunction {
             return 2;
         }
         
-        FileOutputStream fos=new FileOutputStream("../../../sys"+userName);
-        XSSFWorkbook sys=new XSSFWorkbook("../../../sys"+userName);
+        FileOutputStream fos=new FileOutputStream("../../../sys"+userName+".xlsx");
+        XSSFWorkbook sys=new XSSFWorkbook("../../../sys"+userName+".xlsx");
         XSSFSheet sheet=sys.getSheet(dbName);
         int priviegdeNum = 1;
         Row firstRow = sheet.getRow(0);
         for(Cell cell:firstRow){
             if(cell.getStringCellValue().equals(privilegesCode)){
                 priviegdeNum=cell.getColumnIndex();
+                break;
             }
         }
         for(Row table:sheet){
@@ -278,4 +285,116 @@ public class SqlFunction {
         System.out.println("授权成功");
         return 0;
     }
+
+    /**
+     * 展示当前用户
+     */
+    public static void showUser(){
+        System.out.println("CurrentUser:"+currentUser);
+    }
+
+    /**
+     * 展示当前使用数据库
+     */
+    public static void showdatabase(){
+        System.out.println("CurrentDatabase:"+currentDataBase);
+    }
+
+    /**
+     * 查看用户权限
+     * @param userName 用户名
+     * @throws IOException
+     */
+    public static void showGrants(String userName) throws IOException{
+        if (userName ==null) {
+            System.out.println("用户名为空");
+            return;
+        }
+
+        // 运行终端的路径为DBMS1.0
+        XSSFWorkbook Users=new XSSFWorkbook("./sys/"+userName+".xlsx");
+        XSSFSheet sheet=Users.getSheet(currentDataBase);
+        for(Row row:sheet){
+            for(Cell cell:row){
+                System.out.print(cell.getStringCellValue());
+                System.out.print("\t");
+            }
+            System.out.println();
+        }
+
+        Users.close();
+    }
+
+    /**
+     * 取消用户权限
+     * @param privilegesCode 权限名,一个
+     * @param dbName 数据库名
+     * @param tableName 表名
+     * @param userName 用户名
+     * @return 返回值 0,操作正常,2,操作失败
+     * @throws IOException
+     */
+    public static int revokePrivilegde(String privilegesCode,String dbName,String tableName,String userName) throws IOException{
+        if (privilegesCode==null||dbName==null||tableName==null||userName==null) {
+            System.out.println("参数错误,有参数为空,操作失败");
+            return 2;
+        }
+        FileOutputStream fos=new FileOutputStream("./sys"+userName+".xlsx");
+        XSSFWorkbook sys=new XSSFWorkbook("./sys"+userName+".xlsx");
+        XSSFSheet sheet=sys.getSheet(dbName);
+        int priviegdeNum = 1;
+        Row firstRow = sheet.getRow(0);
+        for(Cell cell:firstRow){
+            if(cell.getStringCellValue().equals(privilegesCode)){
+                priviegdeNum=cell.getColumnIndex();
+                break;
+            }
+        }
+        for(Row table:sheet){
+            if (table.getCell(0).getStringCellValue().equals(tableName)) {
+                table.getCell(priviegdeNum).setCellValue("0");
+                break;
+            }
+        }
+        sys.write(fos);
+        sys.close();
+        fos.close();
+        System.out.println("取消授权成功");
+        return 0;
+    }
+
+    /**
+     * 修改用户密码
+     * @param userName 用户名
+     * @param password 原密码
+     * @param newPassword 新密码
+     * @return 返回值 0,操作正常,2,操作失败
+     * @throws IOException
+     */
+    public static int modifyUserPassword(String userName,String password,String newPassword) throws IOException{
+        if(userName==null||password==null||newPassword==null){
+            System.out.println("输入数据错误,操作失败");
+            return 2;
+        }
+        FileOutputStream fos=new FileOutputStream("./../sys/users.xlsx");
+        XSSFWorkbook Users=new XSSFWorkbook("./../sys/users.xlsx");
+        XSSFSheet up=Users.getSheet("up");
+        // 检查密码正确
+        for(Row row:up){
+            if (row.getCell(0).getStringCellValue().equals(userName)) {
+                if(row.getCell(1).getStringCellValue().equals(password)){
+                    row.getCell(1).setCellValue(newPassword);
+                    Users.write(fos);
+                    System.out.println("修改密码成功");
+                }
+                else{
+                    System.out.println("密码错误");
+                }
+                break;
+            }
+        }
+        Users.close();
+        return 0;
+    }
+
 }
