@@ -25,6 +25,7 @@ public class run {
                 else {
                     Interpreter.query(sql, user);
                 }
+                scanner.close();
             } while (sql.equals("exit"));
         }
         else {
