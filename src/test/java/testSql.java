@@ -1,9 +1,9 @@
 import java.io.IOException;
 
 public class testSql {
-    public void testUser(){
+    public static void main(String[] args) {
         try {
-            SqlFunction.createUser("test", "123");
+            SqlFunction.showGrants("root");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
