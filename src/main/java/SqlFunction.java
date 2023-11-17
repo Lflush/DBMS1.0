@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -465,5 +466,36 @@ public class SqlFunction {
             System.out.println(sheetName);
         }
         db.close();
+    }
+
+    /**
+     * 创建表
+     * @param tableName 表名
+     * @param params 传参
+     * 每一个属性的参数按{cnName} {type} {not null} {unique} {foreign/primary key} {check}的顺序
+     * 放入一个ArrayList<String>中,再将所有的属性的ArrayList<String>
+     * 放入一个ArrayList<ArrayList<String>>传入
+     * @return
+     */
+    public static int createTable(String tableName,ArrayList<ArrayList<String>> params){
+        return 0;
+    }
+
+    /**
+     * 查看表的模式
+     * @param tableName 表名
+     * @throws IOException
+     */
+    public static void showTableModel(String tableName) throws IOException{
+        XSSFWorkbook tableWorkbook=new XSSFWorkbook("./tbInformation/"+currentDataBase+"/"+tableName+".xlsx");
+        XSSFSheet model=tableWorkbook.getSheet("model");
+        for(Row row : model){
+            for (Cell cell :row){
+                System.out.print(cell.getStringCellValue()+'\t');
+            }
+            System.out.println();
+        }
+        tableWorkbook.close();
+        return;
     }
 }

@@ -3,11 +3,7 @@ import java.io.IOException;
 public class testSql {
     public static void main(String[] args) {
         try {
-            SqlFunction.showGrants("root");
-            SqlFunction.showDataBases();
-            SqlFunction.showTables();
-            SqlFunction.showUser();
-            SqlFunction.showdatabase();
+            testShow();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -15,4 +11,16 @@ public class testSql {
 
 
     }
+
+    private static void testShow() throws IOException {
+        SqlFunction.showGrants("root");
+        SqlFunction.showDataBases();
+        SqlFunction.showTables();
+        SqlFunction.showUser();
+        SqlFunction.showdatabase();
+        SqlFunction.showTableModel("exampleTb");
+    }
+
+
+    
 }
