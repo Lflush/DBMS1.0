@@ -475,6 +475,7 @@ public class SqlFunction {
      * 每一个属性的参数按{cnName} {type} {not null} {unique} {foreign/primary key} {check}的顺序
      * 放入一个ArrayList<String>中,再将所有的属性的ArrayList<String>
      * 放入一个ArrayList<ArrayList<String>>传入
+     * 传入的参数可选,如果没有,传入null
      * @return
      */
     public static int createTable(String tableName,ArrayList<ArrayList<String>> params){
@@ -497,5 +498,28 @@ public class SqlFunction {
         }
         tableWorkbook.close();
         return;
+    }
+
+    /**
+     * 删除表
+     * @param tbName
+     * @return 0,操作正常,2,操作失败
+     * @throws IOException
+     */
+    public static int deleteTable(String tbName) throws IOException{
+        if (tbName==null) {
+            System.out.println("输入表名为空,操作失败");
+            return 2;
+        }
+        XSSFWorkbook db=new XSSFWorkbook("./data/"+currentDataBase+".xlsx");
+        FileOutputStream fos=new FileOutputStream("./data/"+currentDataBase+".xlsx");
+        db.removeSheetAt(db.getSheetIndex("tbName"));
+        db.write(fos);
+        db.close();
+        fos.close();
+        File tbinform=new File("../../../tbInformation/"+currentDataBase+"/"+tbName+"./xlsx");
+        tbinform.delete();
+        System.out.println("操作成功");
+        return 0;
     }
 }
